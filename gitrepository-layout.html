@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.6.6" />
+<meta name="generator" content="AsciiDoc 8.6.7" />
 <title>gitrepository-layout(5)</title>
 <style type="text/css">
 /* Shared CSS for AsciiDoc xhtml11 and html5 backends */
@@ -349,7 +349,7 @@ div.colist td img {
   margin-bottom: 0.1em;
 }
 
-div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+div.toclevel0, div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -407,6 +407,8 @@ span.underline { text-decoration: underline; }
 span.overline { text-decoration: overline; }
 span.line-through { text-decoration: line-through; }
 
+div.unbreakable { page-break-inside: avoid; }
+
 
 /*
  * xhtml11 specific
@@ -414,7 +416,7 @@ span.line-through { text-decoration: line-through; }
  * */
 
 tt {
-  font-family: monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: inherit;
   color: navy;
 }
@@ -453,7 +455,7 @@ div.tableblock > table[frame="vsides"] {
  * */
 
 .monospaced {
-  font-family: monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: inherit;
   color: navy;
 }
@@ -581,7 +583,7 @@ toc: function (toclevels) {
 
   function tocEntries(el, toclevels) {
     var result = new Array;
-    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    var re = new RegExp('[hH]([1-'+(toclevels+1)+'])');
     // Function that scans the DOM tree for header elements (the DOM2
     // nodeIterator API would be a better technique but not supported by all
     // browsers).
@@ -610,7 +612,7 @@ toc: function (toclevels) {
   var i;
   for (i = 0; i < toc.childNodes.length; i++) {
     var entry = toc.childNodes[i];
-    if (entry.nodeName == 'div'
+    if (entry.nodeName.toLowerCase() == 'div'
      && entry.getAttribute("class")
      && entry.getAttribute("class").match(/^toclevel/))
       tocEntriesToRemove.push(entry);
@@ -656,7 +658,7 @@ footnotes: function () {
   var entriesToRemove = [];
   for (i = 0; i < noteholder.childNodes.length; i++) {
     var entry = noteholder.childNodes[i];
-    if (entry.nodeName == 'div' && entry.getAttribute("class") == "footnote")
+    if (entry.nodeName.toLowerCase() == 'div' && entry.getAttribute("class") == "footnote")
       entriesToRemove.push(entry);
   }
   for (i = 0; i < entriesToRemove.length; i++) {
@@ -807,6 +809,8 @@ use with dumb transports but otherwise is OK as long as
 <tt>objects/info/alternates</tt> points at the object stores it
 borrows from.
 </p>
+<div class="paragraph"><p>This directory is ignored if $GIT_COMMON_DIR is set and
+"$GIT_COMMON_DIR/objects" will be used instead.</p></div>
 </li>
 </ol></div>
 </dd>
@@ -889,7 +893,8 @@ refs
         References are stored in subdirectories of this
         directory.  The <em>git prune</em> command knows to preserve
         objects reachable from refs found in this directory and
-        its subdirectories.
+        its subdirectories. This directory is ignored if $GIT_COMMON_DIR
+        is set and "$GIT_COMMON_DIR/refs" will be used instead.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -936,7 +941,8 @@ packed-refs
 <p>
         records the same information as refs/heads/, refs/tags/,
         and friends record in a more efficient way.  See
-        <a href="git-pack-refs.html">git-pack-refs(1)</a>.
+        <a href="git-pack-refs.html">git-pack-refs(1)</a>. This file is ignored if $GIT_COMMON_DIR
+        is set and "$GIT_COMMON_DIR/packed-refs" will be used instead.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -961,6 +967,16 @@ is often called <em>detached HEAD.</em>  See <a href="git-checkout.html">git-che
 for details.</p></div>
 </dd>
 <dt class="hdlist1">
+config
+</dt>
+<dd>
+<p>
+        Repository specific configuration file. This file is ignored
+        $GIT_COMMON_DIR is set and "$GIT_COMMON_DIR/config" will be
+        used instead.
+</p>
+</dd>
+<dt class="hdlist1">
 branches
 </dt>
 <dd>
@@ -971,7 +987,9 @@ branches
         <em>name</em> can be given to these commands in place of
         <em>repository</em> argument.  See the REMOTES section in
         <a href="git-fetch.html">git-fetch(1)</a> for details.  This mechanism is legacy
-        and not likely to be found in modern repositories.
+        and not likely to be found in modern repositories. This
+        directory is ignored if $GIT_COMMON_DIR is set and
+        "$GIT_COMMON_DIR/branches" will be used instead.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -985,7 +1003,8 @@ hooks
         default.  To enable, the <tt>.sample</tt> suffix has to be
         removed from the filename by renaming.
         Read <a href="githooks.html">githooks(5)</a> for more details about
-        each hook.
+        each hook. This directory is ignored if $GIT_COMMON_DIR is set
+        and "$GIT_COMMON_DIR/hooks" will be used instead.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1003,7 +1022,8 @@ info
 <dd>
 <p>
         Additional information about the repository is recorded
-        in this directory.
+        in this directory. This directory is ignored if $GIT_COMMON_DIR
+        is set and "$GIT_COMMON_DIR/index" will be used instead.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1067,7 +1087,9 @@ remotes
         when interacting with remote repositories via <em>git fetch</em>,
         <em>git pull</em> and <em>git push</em> commands.  See the REMOTES section
         in <a href="git-fetch.html">git-fetch(1)</a> for details.  This mechanism is legacy
-        and not likely to be found in modern repositories.
+        and not likely to be found in modern repositories. This
+        directory is ignored if $GIT_COMMON_DIR is set and
+        "$GIT_COMMON_DIR/remotes" will be used instead.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1077,7 +1099,9 @@ logs
 <p>
         Records of changes made to refs are stored in this
         directory.  See <a href="git-update-ref.html">git-update-ref(1)</a>
-        for more information.
+        for more information. This directory is ignored
+        $GIT_COMMON_DIR is set and "$GIT_COMMON_DIR/logs" will be used
+        instead.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1103,7 +1127,21 @@ shallow
 <p>
         This is similar to <tt>info/grafts</tt> but is internally used
         and maintained by shallow clone mechanism.  See <tt>--depth</tt>
-        option to <a href="git-clone.html">git-clone(1)</a> and <a href="git-fetch.html">git-fetch(1)</a>.
+        option to <a href="git-clone.html">git-clone(1)</a> and <a href="git-fetch.html">git-fetch(1)</a>. This
+        file is ignored if $GIT_COMMON_DIR is set and
+        "$GIT_COMMON_DIR/shallow" will be used instead.
+</p>
+</dd>
+<dt class="hdlist1">
+commondir
+</dt>
+<dd>
+<p>
+        If this file exists, $GIT_COMMON_DIR (see <a href="git.html">git(1)</a>) will
+        be set to the path specified in this file if it is not
+        explicitly set. If the specified path is relative, it is
+        relative to $GIT_DIR. The repository with commondir is
+        incomplete without the repository pointed by "commondir".
 </p>
 </dd>
 <dt class="hdlist1">
@@ -1112,6 +1150,52 @@ modules
 <dd>
 <p>
         Contains the git-repositories of the submodules.
+</p>
+</dd>
+<dt class="hdlist1">
+repos
+</dt>
+<dd>
+<p>
+        Contains worktree specific information of linked
+        checkouts. Each subdirectory contains the worktree-related
+        part of a linked checkout. This directory is ignored
+        $GIT_COMMON_DIR is set and "$GIT_COMMON_DIR/repos" will be
+        used instead.
+</p>
+</dd>
+<dt class="hdlist1">
+repos/&lt;id&gt;/gitdir
+</dt>
+<dd>
+<p>
+        A text file containing the absolute path back to the .git file
+        that points to here. This is used to check if the linked
+        repository has been manually removed and there is no need to
+        keep this directory any more. mtime of this file should be
+        updated every time the linked repository is accessed.
+</p>
+</dd>
+<dt class="hdlist1">
+repos/&lt;id&gt;/locked
+</dt>
+<dd>
+<p>
+        If this file exists, the linked repository may be on a
+        portable device and not available. It does not mean that the
+        linked repository is gone and <tt>repos/&lt;id&gt;</tt> could be
+        removed. The file&#8217;s content contains a reason string on why
+        the repository is locked.
+</p>
+</dd>
+<dt class="hdlist1">
+repos/&lt;id&gt;/link
+</dt>
+<dd>
+<p>
+        If this file exists, it is a hard link to the linked .git
+        file. It is used to detect if the linked repository is
+        manually removed.
 </p>
 </dd>
 </dl></div>
@@ -1140,7 +1224,7 @@ modules
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-03-18 15:05:44 PDT
+Last updated 2014-07-14 00:00:42 EEST
 </div>
 </div>
 </body>

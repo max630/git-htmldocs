@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.6.6" />
+<meta name="generator" content="AsciiDoc 8.6.7" />
 <title>git-config(1)</title>
 <style type="text/css">
 /* Shared CSS for AsciiDoc xhtml11 and html5 backends */
@@ -349,7 +349,7 @@ div.colist td img {
   margin-bottom: 0.1em;
 }
 
-div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+div.toclevel0, div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -407,6 +407,8 @@ span.underline { text-decoration: underline; }
 span.overline { text-decoration: overline; }
 span.line-through { text-decoration: line-through; }
 
+div.unbreakable { page-break-inside: avoid; }
+
 
 /*
  * xhtml11 specific
@@ -414,7 +416,7 @@ span.line-through { text-decoration: line-through; }
  * */
 
 tt {
-  font-family: monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: inherit;
   color: navy;
 }
@@ -453,7 +455,7 @@ div.tableblock > table[frame="vsides"] {
  * */
 
 .monospaced {
-  font-family: monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: inherit;
   color: navy;
 }
@@ -581,7 +583,7 @@ toc: function (toclevels) {
 
   function tocEntries(el, toclevels) {
     var result = new Array;
-    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    var re = new RegExp('[hH]([1-'+(toclevels+1)+'])');
     // Function that scans the DOM tree for header elements (the DOM2
     // nodeIterator API would be a better technique but not supported by all
     // browsers).
@@ -610,7 +612,7 @@ toc: function (toclevels) {
   var i;
   for (i = 0; i < toc.childNodes.length; i++) {
     var entry = toc.childNodes[i];
-    if (entry.nodeName == 'div'
+    if (entry.nodeName.toLowerCase() == 'div'
      && entry.getAttribute("class")
      && entry.getAttribute("class").match(/^toclevel/))
       tocEntriesToRemove.push(entry);
@@ -656,7 +658,7 @@ footnotes: function () {
   var entriesToRemove = [];
   for (i = 0; i < noteholder.childNodes.length; i++) {
     var entry = noteholder.childNodes[i];
-    if (entry.nodeName == 'div' && entry.getAttribute("class") == "footnote")
+    if (entry.nodeName.toLowerCase() == 'div' && entry.getAttribute("class") == "footnote")
       entriesToRemove.push(entry);
   }
   for (i = 0; i < entriesToRemove.length; i++) {
@@ -1632,6 +1634,17 @@ will probe and set core.fileMode false if appropriate when the
 repository is created.</p></div>
 </dd>
 <dt class="hdlist1">
+core.hideDotFiles
+</dt>
+<dd>
+<p>
+        (Windows-only) If true (which is the default), mark newly-created
+        directories and files whose name starts with a dot as hidden.
+        If <em>dotGitOnly</em>, only the .git/ directory is hidden, but no other
+        files starting with a dot.
+</p>
+</dd>
+<dt class="hdlist1">
 core.ignorecase
 </dt>
 <dd>
@@ -1859,6 +1872,8 @@ core.worktree
 <dd>
 <p>
         Set the path to the root of the working tree.
+        If GIT_COMMON_DIR environment variable is set, core.worktree
+        is ignored and not used for determining the root of working tree.
         This can be overridden by the GIT_WORK_TREE environment
         variable and the <em>--work-tree</em> command-line option.
         The value can be an absolute path or relative to the path to
@@ -2223,6 +2238,28 @@ index comparison to the filesystem data in parallel, allowing
 overlapping IO&#8217;s.  Defaults to true.</p></div>
 </dd>
 <dt class="hdlist1">
+core.fscache
+</dt>
+<dd>
+<p>
+        Enable additional caching of file system data for some operations.
+</p>
+<div class="paragraph"><p>Git for Windows uses this to bulk-read and cache lstat data of entire
+directories (instead of doing lstat file by file).</p></div>
+</dd>
+<dt class="hdlist1">
+core.longpaths
+</dt>
+<dd>
+<p>
+        Enable long path (&gt; 260) support for builtin commands in Git for
+        Windows. This is disabled by default, as long paths are not supported
+        by Windows Explorer, cmd.exe and the Git for Windows tool chain
+        (msys, bash, tcl, perl&#8230;). Only enable this if you know what you&#8217;re
+        doing and are prepared to live with a few quirks.
+</p>
+</dd>
+<dt class="hdlist1">
 core.createObject
 </dt>
 <dd>
@@ -2450,6 +2487,7 @@ branch.&lt;name&gt;.rebase
         instead of merging the default branch from the default remote when
         "git pull" is run. See "pull.rebase" for doing this in a non
         branch-specific manner.
+        When the value is <tt>interactive</tt>, the rebase is run in interactive mode.
 </p>
 <div class="literalblock">
 <div class="content">
@@ -3757,6 +3795,18 @@ gc.pruneexpire
         Override the grace period with this config variable.  The value
         "now" may be used to disable this  grace period and always prune
         unreachable objects immediately.
+</p>
+</dd>
+<dt class="hdlist1">
+gc.prunereposexpire
+</dt>
+<dd>
+<p>
+        When <em>git gc</em> is run, it will call
+        <em>prune --repos --expire 3.months.ago</em>.
+        Override the grace period with this config variable. The value
+        "now" may be used to disable the grace period and prune
+        $GIT_DIR/repos immediately.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -5525,6 +5575,10 @@ receive.denyCurrentBranch
         proceed. If set to false or "ignore", allow such pushes with no
         message. Defaults to "refuse".
 </p>
+<div class="paragraph"><p>There are two more options that are meant for Git experts: "updateInstead"
+which will run <tt>read-tree -u -m HEAD</tt> and "detachInstead" which will detach
+the HEAD so it does not need to change.  Both options come with their own
+set of possible <strong>complications</strong>, but can be appropriate in rare workflows.</p></div>
 </dd>
 <dt class="hdlist1">
 receive.denyNonFastForwards
@@ -6245,6 +6299,17 @@ web.browser
         may use it.
 </p>
 </dd>
+<dt class="hdlist1">
+sendpack.sideband
+</dt>
+<dd>
+<p>
+  Allows to disable the side-band-64k capability for send-pack even
+  when it is advertised by the server. Makes it possible to work
+  around a limitation in the git for windows implementation together
+  with the dump git protocol. Defaults to true.
+</p>
+</dd>
 </dl></div>
 </div>
 </div>
@@ -6259,7 +6324,7 @@ web.browser
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-06-06 12:15:38 PDT
+Last updated 2014-07-13 18:15:43 EEST
 </div>
 </div>
 </body>

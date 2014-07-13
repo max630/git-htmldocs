@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.6.6" />
+<meta name="generator" content="AsciiDoc 8.6.7" />
 <title>git-checkout(1)</title>
 <style type="text/css">
 /* Shared CSS for AsciiDoc xhtml11 and html5 backends */
@@ -349,7 +349,7 @@ div.colist td img {
   margin-bottom: 0.1em;
 }
 
-div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+div.toclevel0, div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -407,6 +407,8 @@ span.underline { text-decoration: underline; }
 span.overline { text-decoration: overline; }
 span.line-through { text-decoration: line-through; }
 
+div.unbreakable { page-break-inside: avoid; }
+
 
 /*
  * xhtml11 specific
@@ -414,7 +416,7 @@ span.line-through { text-decoration: line-through; }
  * */
 
 tt {
-  font-family: monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: inherit;
   color: navy;
 }
@@ -453,7 +455,7 @@ div.tableblock > table[frame="vsides"] {
  * */
 
 .monospaced {
-  font-family: monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: inherit;
   color: navy;
 }
@@ -581,7 +583,7 @@ toc: function (toclevels) {
 
   function tocEntries(el, toclevels) {
     var result = new Array;
-    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    var re = new RegExp('[hH]([1-'+(toclevels+1)+'])');
     // Function that scans the DOM tree for header elements (the DOM2
     // nodeIterator API would be a better technique but not supported by all
     // browsers).
@@ -610,7 +612,7 @@ toc: function (toclevels) {
   var i;
   for (i = 0; i < toc.childNodes.length; i++) {
     var entry = toc.childNodes[i];
-    if (entry.nodeName == 'div'
+    if (entry.nodeName.toLowerCase() == 'div'
      && entry.getAttribute("class")
      && entry.getAttribute("class").match(/^toclevel/))
       tocEntriesToRemove.push(entry);
@@ -656,7 +658,7 @@ footnotes: function () {
   var entriesToRemove = [];
   for (i = 0; i < noteholder.childNodes.length; i++) {
     var entry = noteholder.childNodes[i];
-    if (entry.nodeName == 'div' && entry.getAttribute("class") == "footnote")
+    if (entry.nodeName.toLowerCase() == 'div' && entry.getAttribute("class") == "footnote")
       entriesToRemove.push(entry);
   }
   for (i = 0; i < entriesToRemove.length; i++) {
@@ -1063,6 +1065,18 @@ edits from your current working tree. See the &#8220;Interactive Mode&#8221;
 section of <a href="git-add.html">git-add(1)</a> to learn how to operate the <tt>--patch</tt> mode.</p></div>
 </dd>
 <dt class="hdlist1">
+--to=&lt;path&gt;
+</dt>
+<dd>
+<p>
+        Check out a new branch in a separate working directory at
+        <tt>&lt;path&gt;</tt>. A new working directory is linked to the current
+        repository, sharing everything except working directory
+        specific files such as HEAD, index&#8230; See "MULTIPLE CHECKOUT
+        MODE" section for more information.
+</p>
+</dd>
+<dt class="hdlist1">
 &lt;branch&gt;
 </dt>
 <dd>
@@ -1248,11 +1262,36 @@ can use either of these commands:</p></div>
 <pre><tt>$ git reflog -2 HEAD # or
 $ git log -g -2 HEAD</tt></pre>
 </div></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_examples">EXAMPLES</h2>
-<div class="sectionbody">
+<div class="paragraph"><p>MULTIPLE CHECKOUT MODE</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>Normally a working directory is attached to repository. When "git
+checkout --to" is used, a new working directory is attached to the
+current repository. This new working directory is called "linked
+checkout" as compared to the "main checkout" prepared by "git init" or
+"git clone". A repository has one main checkout and zero or more
+linked checkouts.
+
+All checkouts share the same repository. Linked checkouts see the
+repository a bit different from the main checkout. When the checkout
+"new" reads the path $GIT_DIR/HEAD for example, the actual path
+returned could be $GIT_DIR/repos/new/HEAD. This ensures checkouts
+won't step on each other.
+
+Each linked checkout has a private space in $GIT_DIR/repos, usually
+named after the base name of the working directory with a number added
+to make it unique. The linked checkout's $GIT_DIR points to this
+private space while $GIT_COMMON_DIR points to the main checkout's
+$GIT_DIR. These settings are done by "git checkout --to".
+
+Because in this mode $GIT_DIR becomes a lightweight virtual file
+system where a path could be rewritten to some place else, accessing
+$GIT_DIR from scripts should use `git rev-parse --git-path` to resolve
+a path instead of using it directly unless the path is known to be
+private to the working directory.
+
+EXAMPLES</tt></pre>
+</div></div>
 <div class="olist arabic"><ol class="arabic">
 <li>
 <p>
@@ -1365,7 +1404,7 @@ $ git add frotz</tt></pre>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-01-27 13:30:07 PST
+Last updated 2014-07-14 00:00:42 EEST
 </div>
 </div>
 </body>
