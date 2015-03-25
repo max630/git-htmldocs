@@ -1711,6 +1711,17 @@ See <a href="git-update-index.html">git-update-index(1)</a>.</p></div>
 <div class="paragraph"><p>The default is true (when core.filemode is not specified in the config file).</p></div>
 </dd>
 <dt class="hdlist1">
+core.hideDotFiles
+</dt>
+<dd>
+<p>
+        (Windows-only) If true (which is the default), mark newly-created
+        directories and files whose name starts with a dot as hidden.
+        If <em>dotGitOnly</em>, only the .git/ directory is hidden, but no other
+        files starting with a dot.
+</p>
+</dd>
+<dt class="hdlist1">
 core.ignoreCase
 </dt>
 <dd>
@@ -1961,6 +1972,8 @@ core.worktree
 <dd>
 <p>
         Set the path to the root of the working tree.
+        If GIT_COMMON_DIR environment variable is set, core.worktree
+        is ignored and not used for determining the root of working tree.
         This can be overridden by the GIT_WORK_TREE environment
         variable and the <em>--work-tree</em> command-line option.
         The value can be an absolute path or relative to the path to
@@ -2326,6 +2339,28 @@ index comparison to the filesystem data in parallel, allowing
 overlapping IO&#8217;s.  Defaults to true.</p></div>
 </dd>
 <dt class="hdlist1">
+core.fscache
+</dt>
+<dd>
+<p>
+        Enable additional caching of file system data for some operations.
+</p>
+<div class="paragraph"><p>Git for Windows uses this to bulk-read and cache lstat data of entire
+directories (instead of doing lstat file by file).</p></div>
+</dd>
+<dt class="hdlist1">
+core.longpaths
+</dt>
+<dd>
+<p>
+        Enable long path (&gt; 260) support for builtin commands in Git for
+        Windows. This is disabled by default, as long paths are not supported
+        by Windows Explorer, cmd.exe and the Git for Windows tool chain
+        (msys, bash, tcl, perl&#8230;). Only enable this if you know what you&#8217;re
+        doing and are prepared to live with a few quirks.
+</p>
+</dd>
+<dt class="hdlist1">
 core.createObject
 </dt>
 <dd>
@@ -2552,6 +2587,7 @@ branch.&lt;name&gt;.rebase
         instead of merging the default branch from the default remote when
         "git pull" is run. See "pull.rebase" for doing this in a non
         branch-specific manner.
+        When the value is <code>interactive</code>, the rebase is run in interactive mode.
 </p>
 <div class="literalblock">
 <div class="content">
@@ -3870,6 +3906,18 @@ gc.pruneExpire
         Override the grace period with this config variable.  The value
         "now" may be used to disable this  grace period and always prune
         unreachable objects immediately.
+</p>
+</dd>
+<dt class="hdlist1">
+gc.pruneWorktreesExpire
+</dt>
+<dd>
+<p>
+        When <em>git gc</em> is run, it will call
+        <em>prune --worktrees --expire 3.months.ago</em>.
+        Override the grace period with this config variable. The value
+        "now" may be used to disable the grace period and prune
+        $GIT_DIR/worktrees immediately.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -6498,6 +6546,17 @@ web.browser
         may use it.
 </p>
 </dd>
+<dt class="hdlist1">
+sendpack.sideband
+</dt>
+<dd>
+<p>
+  Allows to disable the side-band-64k capability for send-pack even
+  when it is advertised by the server. Makes it possible to work
+  around a limitation in the git for windows implementation together
+  with the dump git protocol. Defaults to true.
+</p>
+</dd>
 </dl></div>
 </div>
 </div>
@@ -6512,7 +6571,8 @@ web.browser
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-23 14:31:16 PDT
+Last updated
+ 2015-03-25 10:20:55 EET
 </div>
 </div>
 </body>

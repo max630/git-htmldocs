@@ -2465,6 +2465,20 @@ Git so take care if using Cogito etc.</p></div>
         command line.
 </p>
 </dd>
+<dt class="hdlist1">
+<em>GIT_COMMON_DIR</em>
+</dt>
+<dd>
+<p>
+        If this variable is set to a path, non-worktree files that are
+        normally in $GIT_DIR will be taken from this path
+        instead. Worktree-specific files such as HEAD or index are
+        taken from $GIT_DIR. See <a href="gitrepository-layout.html">gitrepository-layout(5)</a> and
+        the section <em>MULTIPLE CHECKOUT MODE</em> in <a href="checkout.html">checkout(1)</a>
+        details. This variable has lower precedence than other path
+        variables such as GIT_INDEX_FILE, GIT_OBJECT_DIRECTORY&#8230;
+</p>
+</dd>
 </dl></div>
 </div>
 <div class="sect2">
@@ -2823,6 +2837,22 @@ GIT_ICASE_PATHSPECS
         end user, to be recorded in the body of the reflog.
 </p>
 </dd>
+<dt class="hdlist1">
+<code>GIT_REF_PARANOIA</code>
+</dt>
+<dd>
+<p>
+        If set to <code>1</code>, include broken or badly named refs when iterating
+        over lists of refs. In a normal, non-corrupted repository, this
+        does nothing. However, enabling it may help git to detect and
+        abort some operations in the presence of broken refs. Git sets
+        this variable automatically when performing destructive
+        operations like <a href="git-prune.html">git-prune(1)</a>. You should not need to set
+        it yourself unless you want to be paranoid about making sure
+        an operation has touched every ref (e.g., because you are
+        cloning a repository to make a backup).
+</p>
+</dd>
 </dl></div>
 </div>
 </div>
@@ -2931,7 +2961,8 @@ subscribed to the list to send a message there.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-23 14:31:16 PDT
+Last updated
+ 2015-03-25 10:20:55 EET
 </div>
 </div>
 </body>
